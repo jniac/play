@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style media="screen">
+			/* https://www.materialui.co/icon/fullscreen */
+			/* https://yoksel.github.io/url-encoder/ */
+			div.button {
+				position: absolute;
+				width: 32px;
+				height: 32px;
+				background-color: #7476ef;
+				user-select: none;
+				cursor: pointer;
+				transition: .1s;
+				background-size: cover;
+			}
+			div.button:hover {
+				background-color: #fff;
+				transform: scale(1.2);
+			}
+			body.is-fullscreen div.button {
+				display: none;
+			}
+			div.refresh {
+				top: 12px;
+				left: 12px;
+				background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 13.5c-2.49 0-4.5-2.01-4.5-4.5S6.51 4.5 9 4.5c1.24 0 2.36.52 3.17 1.33L10 8h5V3l-1.76 1.76C12.15 3.68 10.66 3 9 3 5.69 3 3.01 5.69 3.01 9S5.69 15 9 15c2.97 0 5.43-2.16 5.9-5h-1.52c-.46 2-2.24 3.5-4.38 3.5z'/%3E%3C/svg%3E ");
+			}
+			div.fullscreen {
+				top: 12px;
+				right: 12px;
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M4.5 11H3v4h4v-1.5H4.5V11zM3 7h1.5V4.5H7V3H3v4zm10.5 6.5H11V15h4v-4h-1.5v2.5zM11 3v1.5h2.5V7H15V3h-4z'/%3E%3C/svg%3E");
+			}
+		</style>
+	</head>
+	<body style="margin: 0; overflow: hidden;">
+		<div class="button refresh"></div>
+		<div class="button fullscreen"></div>
+		<script src="src/main.js" type="module"></script>
+	</body>
+</html>
