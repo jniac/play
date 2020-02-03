@@ -106,9 +106,13 @@ async function main() {
         const anchor = new Vec3(x, y, -y * 2 - dy)
         const scale = 1, overScale = 1.7 + random.float(.15)
         circle.props = { scale, overScale, anchor, hex }
-        circle.onOver = () => currentCircle = circle
-        circle.onOut = () => currentCircle = null
         circle.position.copy(anchor)
+
+        circle.onOver = () => {
+            currentCircle = circle
+            pSystem.fastKill()
+        }
+        circle.onOut = () => currentCircle = null
 
         circle.update = t => {
 

@@ -2,6 +2,8 @@ import { Mesh, Plane, Vec3, Program } from './ogl/index.mjs'
 import utils from './utils.js'
 import kit from './kit.module.js'
 
+const { Random:R } = kit
+
 const vertex = /* glsl */ `
     precision highp float;
     precision highp int;
@@ -59,49 +61,77 @@ export default ({ scene, gl, focus = new Vec3(0, 0, -10), color = new Color('#fc
 
     const particles = new Set()
 
-    const create = ({ size = .01, respawnOnDeath, dispersionMax = 1, dispersionMin = .8, deltaZ = .05 } = {}) => {
+    const create = ({
+        size = .01,
+        respawnOnDeath,
+        deltaZ = .05,
+        dispersionMax = 1,
+        dispersionMin = .8,
+        dispersionPower = .5,
+    } = {}) => {
 
         const mesh = new Mesh(gl, { geometry:new Plane(gl, { width:size, height:size }), program })
         mesh.setParent(scene)
 
         let v = new Vec3(), c = new Color().copy(color)
-        let t, tmax, easeT1, drag, scale, dead = true
+        let t, tmax, easeT1, drag, scale, dead = true, respawnThreshold
 
-        const init = () => {
+        const spawn = () => {
 
             t = 0
-            tmax = kit.Random.float(.8, 1.3)
-            drag = kit.Random.float(.3, .4) ** dt
+            tmax = R.float(.8, 1.3)
+            drag = R.float(.3, .4) ** dt
 
-            let a = kit.Random.float(2 * Math.PI)
-            let vLength = kit.Random.float(.1, .3)
+            let a = R.float(2 * Math.PI)
+            let vLength = R.float(.1, .3)
             v.x = vLength * Math.cos(a)
             v.y = vLength * Math.sin(a)
 
-            let d = dispersionMin + (dispersionMax - dispersionMin) * (kit.Random.float() ** .5)
+            let d = dispersionMin + (dispersionMax - dispersionMin) * (R.float() ** dispersionPower)
             mesh.position.x = focus.x + d * Math.cos(a)
             mesh.position.y = focus.y + d * Math.sin(a)
             mesh.position.z = focus.z + deltaZ
 
-            // scale = kit.Random.float(.5, 1)
+            respawnThreshold = R.float(1, 2)
+
+            // scale = R.float(.5, 1)
             scale = 1
 
             c.copy(color)
 
             dead = false
+            fastKillEnabled = false
 
+        }
+
+        let fastKillEnabled = false
+        const fastKill = () => {
+            fastKillEnabled = true
         }
 
         mesh.scale.set(0)
 
-        init()
+        spawn()
 
         const update = () => {
+
+            t += dt
+            dead = t > tmax
+
+            // if "fastKill" is enabled, tmax decrease, so living particles will
+            // die faster (trigger when rollover change)
+            if (fastKillEnabled)
+                tmax += -dt
+
+            // Do not respawn on death, but a wait an arbitrary amount of time
+            // ([tmax, tmax * 2]), in order avoid "wave" effect (fastKill produce
+            // such waves, via sudden death)
+            if (dead && (t / tmax > respawnThreshold))
+                spawn()
 
             if (dead)
                 return
 
-            t += dt
             v.x *= drag
             v.y *= drag
             mesh.position.x += v.x * dt
@@ -109,10 +139,6 @@ export default ({ scene, gl, focus = new Vec3(0, 0, -10), color = new Color('#fc
             easeT1 = pooow(t / tmax)
             // mesh.scale.set(scale)
             mesh.scale.set(scale * easeT1)
-            dead = t > tmax
-
-            if (dead)
-                init()
 
         }
 
@@ -121,18 +147,18 @@ export default ({ scene, gl, focus = new Vec3(0, 0, -10), color = new Color('#fc
             mesh.program.uniforms.uAlpha.value = easeT1
         })
 
-        return { mesh, init, update }
+        return { mesh, spawn, update, fastKill }
 
     }
 
     let s1 = new Set()
     let s2 = new Set()
 
-    for (let i of utils.enumerate({ max:300 }))
+    for (let i of utils.enumerate({ max:200 }))
         s1.add(create({ respawnOnDeath:false, deltaZ:-.05 }))
 
-    for (let i of utils.enumerate({ max:100 }))
-        s2.add(create({ respawnOnDeath:false, dispersionMin:0, deltaZ:.05 }))
+    for (let i of utils.enumerate({ max:200 }))
+        s2.add(create({ respawnOnDeath:false, dispersionMin:0, dispersionPower:1/4, deltaZ:.05 }))
 
     const update = () => {
 
@@ -144,10 +170,21 @@ export default ({ scene, gl, focus = new Vec3(0, 0, -10), color = new Color('#fc
 
     }
 
+    const fastKill = () => {
+
+        for (let p of s1)
+            p.fastKill()
+
+        for (let p of s2)
+            p.fastKill()
+
+    }
+
     return {
         focus,
         color,
         update,
+        fastKill,
     }
 
 
