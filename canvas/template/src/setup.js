@@ -1,4 +1,10 @@
-import { Renderer, Camera, Raycast, Transform, Vec2 } from './ogl/index.mjs'
+import {
+    Renderer,
+    Camera,
+    Raycast,
+    Transform,
+    Vec2,
+} from '../../lib/ogl/index.mjs'
 
 const requestFullscreen = (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen).bind(document.documentElement)
 const exitFullscreen = (document.exitFullscreen || document.webkitExitFullscreen).bind(document)

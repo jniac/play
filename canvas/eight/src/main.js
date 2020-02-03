@@ -9,7 +9,7 @@ import {
     Color,
     Orbit,
     Vec3,
-} from './ogl/index.mjs'
+} from '../../lib/ogl/index.mjs'
 
 import utils from './utils.js'
 import setup from './setup.js'
@@ -33,6 +33,8 @@ async function main() {
         }),
     })
     sphere.setParent(scene)
+
+
 
 }
 
