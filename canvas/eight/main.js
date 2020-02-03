@@ -10,15 +10,17 @@ import {
     Color,
     Orbit,
     Vec3,
-} from '../../lib/ogl/index.mjs'
+} from '../lib/ogl/index.mjs'
 
-import utils from './utils.js'
-import setup from './setup.js'
-import kit from './kit.module.js'
+import utils from '../lib/utils.js'
+import setup from '../lib/ogl-setup.js'
+import kit from '../lib/kit.module.js'
 
 async function main() {
 
     const { gl, camera, renderer, scene, raycast, mouse, onUpdate } = setup({ size:3 })
+
+    camera.position.set(-4.06, -5.49, 8.76)
 
     const orbit = new Orbit(camera)
     onUpdate.add(() => orbit.update())
@@ -26,8 +28,8 @@ async function main() {
     const sphere = new Mesh(gl, {
         geometry: new Sphere(gl),
         program: new Program(gl, {
-            vertex: await utils.load('materials/color/vertex.glsl'),
-            fragment: await utils.load('materials/color/fragment.glsl'),
+            vertex: await utils.load('../materials/color/vertex.glsl'),
+            fragment: await utils.load('../materials/color/fragment.glsl'),
             uniforms: { uColor: { value:new Color('#fc0') }},
         }),
     })
@@ -70,9 +72,13 @@ async function main() {
     const lol = new Mesh(gl, {
         geometry: new Geometry(gl, attributes),
         program: new Program(gl, {
-            vertex: await utils.load('materials/uv/vertex.glsl'),
-            fragment: await utils.load('materials/uv/fragment.glsl'),
-            uniforms: { uColor: { value:new Color('#fc0') }},
+            vertex: await utils.load('../materials/uv/vertex.glsl'),
+            // fragment: await utils.load('../materials/uv/fragment.glsl'),
+            fragment: await utils.load('../materials/uv/gradient-u.glsl'),
+            uniforms: {
+                uColor0: { value:new Color('#fc0') },
+                uColor1: { value:new Color('#0cf') },
+            },
             cullFace: false,
         }),
     })

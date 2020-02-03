@@ -4,7 +4,7 @@ import {
     Raycast,
     Transform,
     Vec2,
-} from '../../lib/ogl/index.mjs'
+} from './ogl/index.mjs'
 
 const requestFullscreen = (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen).bind(document.documentElement)
 const exitFullscreen = (document.exitFullscreen || document.webkitExitFullscreen).bind(document)
@@ -134,6 +134,8 @@ export default function setup({ size = 2, orthographic = false } = {}) {
     resize()
     requestAnimationFrame(update)
 
-    return { gl, camera, renderer, scene, raycast, mouse, onUpdate }
+    const bundle = { gl, camera, renderer, scene, raycast, mouse, onUpdate }
+    Object.assign(window, bundle)
+    return bundle
 
 }
