@@ -38,10 +38,13 @@ void main() {
     float a = atan(p.y, p.x);
     float x = sawtooth(d * uStripe - (uTime + uTimeOffset) * .08 * uStripe + a * uRay / PI / 2., 1.);
 
-    float delta = .01 * uStripe;
+    float delta = .001 * uStripe;
     float wave = smoothstep(uRatio - delta, uRatio + delta, x);
     // gl_FragColor.rgb = uColor * wave * pow(clamp(vUv.y * 1.4 - .4, 0., 1.), .75);
     gl_FragColor.rgb = uColor * wave * pow(vUv.y, .75);
     gl_FragColor.a = 1. - smoothstep(.99, 1., d);
+
+    if (gl_FragColor.a < 0.01)
+        discard;
 
 }

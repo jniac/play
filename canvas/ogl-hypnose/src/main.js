@@ -153,7 +153,7 @@ async function main() {
         orbit.update()
 
         if (currentCircle) {
-            pSystem.focus.set(currentCircle.position.x, currentCircle.position.y, currentCircle.position.z + .05)
+            pSystem.focus.set(currentCircle.position.x, currentCircle.position.y, currentCircle.position.z)
             pSystem.color.set(currentCircle.props.hex)
         }
 
