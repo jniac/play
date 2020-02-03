@@ -32,7 +32,7 @@ document.onfullscreenchange = () => document.body.classList.toggle('is-fullscree
 // weird bug with fullscreen
 document.documentElement.scrollTop = 0
 
-export default function setup({ size = 2 } = {}) {
+export default function setup({ size = 2, orthographic = false } = {}) {
 
     const onUpdate = new Set()
 
@@ -55,11 +55,14 @@ export default function setup({ size = 2 } = {}) {
         renderer.setSize(width, height)
         const aspect = gl.canvas.width / gl.canvas.height
 
-        // camera.perspective({ aspect })
+        if (orthographic) {
+            const y = size / 2
+            const x = y * aspect
+            camera.orthographic({ left:-x, right:x, top:y, bottom:-y })
+        } else {
+            camera.perspective({ aspect })
+        }
 
-        const y = size / 2
-        const x = y * aspect
-        camera.orthographic({ left:-x, right:x, top:y, bottom:-y })
     }
 
     let firstHit = null

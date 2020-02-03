@@ -1,5 +1,9 @@
 
 function* enumerate({ min = 0, max, step = 1 }) {
+
+    if (typeof arguments[0] === 'number')
+        max = arguments[0]
+
     while (min < max) {
         yield min
         min += step
