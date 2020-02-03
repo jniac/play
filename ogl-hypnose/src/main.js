@@ -34,7 +34,7 @@ async function main() {
 
     const { gl, camera, renderer, scene, raycast, mouse } = setup({ size:3 })
 
-    // const pSystem = ParticlesSystem({ scene, gl })
+    const pSystem = ParticlesSystem({ scene, gl })
 
     const orbit = new Orbit(camera)
 
@@ -153,11 +153,11 @@ async function main() {
         orbit.update()
 
         if (currentCircle) {
-            // pSystem.focus.set(currentCircle.position.x, currentCircle.position.y, currentCircle.position.z + .05)
-            // pSystem.color.set(currentCircle.props.hex)
+            pSystem.focus.set(currentCircle.position.x, currentCircle.position.y, currentCircle.position.z + .05)
+            pSystem.color.set(currentCircle.props.hex)
         }
 
-        // pSystem.update()
+        pSystem.update()
 
         for (let circle of circles)
             circle.update(t)
