@@ -19,7 +19,6 @@ const randomPointInAnnulus = (x, y, rMin, rMax, random) => {
 
 const k = 30
 const radius = 100
-const radius2 = radius * radius
 const cellSize = radius * Math.SQRT1_2
 const gridWidth = Math.floor(width / cellSize)
 const gridHeight = Math.floor(height / cellSize)
@@ -57,7 +56,9 @@ const getCloseSample = ({ x, y }) => {
                 const dx = x - sample.x
                 const dy = y - sample.y
 
-                if (dx * dx + dy * dy < radius2)
+                // NOTE: for clarity purpose: radius2 is not saved here
+                // but should be in optimization
+                if (dx * dx + dy * dy < radius * radius)
                     return sample
             }
         }
@@ -66,11 +67,18 @@ const getCloseSample = ({ x, y }) => {
     return null
 }
 
-let activeSamples = []
 
+
+// animation props
 let pauseOnStep = true
 let delaySamples = 20
 let delayCandidates = 5
+
+
+
+
+
+let activeSamples = []
 
 const newSample = async () => {
 
