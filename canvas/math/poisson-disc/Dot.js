@@ -1,4 +1,4 @@
-import { CanvasElement } from './engine.js'
+import { CanvasElement } from './canvas-engine.js'
 
 export default class Dot extends CanvasElement {
 

@@ -1,4 +1,4 @@
-import engine, { Grid, Circle, onDraw, time, width, height, wait } from './engine.js'
+import engine, { Grid, Circle, onDraw, time, width, height, wait } from './canvas-engine.js'
 import Dot from './Dot.js'
 import kit from '../../lib/kit.module.js'
 
