@@ -185,6 +185,14 @@ const wait = delay => new Promise(resolve => {
     })
 })
 
+const saveEdgeTransform = () => {
+
+    // slightly transform the canvas space to let the first and last lines
+    // of the grid be visible (not half-drawn)
+    ctx.setTransform((width - 1) / width, 0, 0, (height - 1) / height, .5, .5)
+
+}
+
 const drawFrame = t => {
 
     requestAnimationFrame(drawFrame)
@@ -204,7 +212,8 @@ const drawFrame = t => {
             if (element.transform.dirty)
                 element.transform.update()
 
-            ctx.setTransform(...element.transform.matrix)
+            saveEdgeTransform()
+            ctx.transform(...element.transform.matrix)
             element.draw()
         }
     }
@@ -220,10 +229,6 @@ requestAnimationFrame(drawFrame)
 
 
 
-// slightly transform the canvas space to let the first and last lines
-// be visible (not half-drawn)
-ctx.translate(.5, .5)
-ctx.scale((width - 1) / width, (height - 1) / height)
 
 // DEBUG:
 Object.assign(window, {
