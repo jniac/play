@@ -27,24 +27,34 @@ export default class Dot extends CanvasElement {
             completion,
         } = this
 
-        if (status === 'active') {
-
-            ctx.fillStyle = 'red'
-            ctx.beginPath()
-            ctx.circle(0, 0, r)
-            ctx.fill()
-
-        } else if (status === 'currentActive') {
-
-            ctx.fillStyle = 'red'
-            ctx.beginPath()
-            ctx.circle(0, 0, r)
-            ctx.fill()
+        // if current draw ring
+        if (/current/.test(status)) {
 
             ctx.fillStyle = '#0003'
             ctx.beginPath()
             ctx.ring(0, 0, radius, radius * 2)
             ctx.fill('evenodd')
+        }
+
+        if (/active/.test(status)) {
+
+            ctx.fillStyle = 'red'
+            ctx.beginPath()
+            ctx.circle(0, 0, r)
+            ctx.fill()
+
+        } else if (/new/.test(status)) {
+
+            ctx.fillStyle = '#06f'
+            ctx.beginPath()
+            ctx.circle(0, 0, r)
+            ctx.fill()
+
+            ctx.strokeStyle = '#06f'
+            ctx.lineWidth = 4
+            ctx.beginPath()
+            ctx.circle(0, 0, 16)
+            ctx.stroke()
 
         } else if (/candidate/.test(status)) {
 
@@ -77,7 +87,7 @@ export default class Dot extends CanvasElement {
 
         if (completion) {
 
-            ctx.strokeStyle = 'red'
+            ctx.strokeStyle = /active/.test(status) ? 'red' : 'black'
             ctx.lineWidth = 4
             ctx.beginPath()
             ctx.arc(0, 0, 16, 0, 2 * Math.PI * completion)

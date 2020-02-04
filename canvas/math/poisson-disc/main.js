@@ -120,7 +120,7 @@ const newSample = async () => {
     // pick a random sample
     let currentActive = activeSamples[Math.floor(activeSamples.length * R.float())]
 
-    currentActive.status = 'currentActive'
+    currentActive.status = 'active-current'
 
     await wait(0)
 
@@ -131,6 +131,7 @@ const newSample = async () => {
     for (let i of range(0, k)) {
 
         await candidateAnimation()
+        currentActive.completion = (i + 1) / k
 
         let { x, y } = randomPointInAnnulus(currentActive.x, currentActive.y, radius, radius * 2, () => R.float())
 
@@ -140,7 +141,6 @@ const newSample = async () => {
 
         let candidate = new Dot({ x, y, status:'candidate', radius })
         candidates.add(candidate)
-        currentActive.completion = (i + 1) / k
 
         let closeSample = getCloseSample({ x, y })
 
@@ -160,6 +160,9 @@ const newSample = async () => {
 
     }
 
+    if (sample)
+        sample.status = 'new'
+    currentActive.status = sample ? 'active-current' : 'done-current'
     await sampleAnimation()
     currentActive.completion = 0
 
@@ -169,18 +172,17 @@ const newSample = async () => {
 
     if (sample) {
 
-        currentActive.status = 'active'
         sample.status = 'active'
 
     } else {
-
-        currentActive.status = 'done'
 
         // no close sample found
         // remove current sample from the activeSamples
         const index = activeSamples.indexOf(currentActive)
         activeSamples.splice(index, 1)
     }
+
+    currentActive.status = sample ? 'active' : 'done'
 }
 
 
