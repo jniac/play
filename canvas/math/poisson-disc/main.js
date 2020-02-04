@@ -17,14 +17,17 @@ const randomPointInAnnulus = (x, y, rMin, rMax, random) => {
     return { x, y }
 }
 
-const k = 30
-const radius = 100
-const cellSize = radius * Math.SQRT1_2
+const k = 30                                            // max number of iteration by sample
+const radius = 100                                      // minimum distance between 2 samples
+const cellSize = radius * Math.SQRT1_2                  // cell size of the grid (to avoid global evaluation)
 const gridWidth = Math.floor(width / cellSize)
 const gridHeight = Math.floor(height / cellSize)
 
+// the samples stored by their grid index (y * gridWidth + x)
 let samples = new Map()
 
+// usage: for (let i of range(min, max))
+// max is not included
 function* range(min, max) { while(min < max) yield min++ }
 
 const registerSample = ({ x, y }) => {
@@ -35,6 +38,8 @@ const registerSample = ({ x, y }) => {
     samples.set(index, { x, y })
 }
 
+// search for an existing sample stored in samples
+// fast lookup via grid x/y iteration
 const getCloseSample = ({ x, y }) => {
 
     let cx = Math.floor(x / cellSize)
@@ -112,6 +117,7 @@ const newSample = async () => {
     if (activeSamples.length === 0)
         return
 
+    // pick a random sample
     let currentActive = activeSamples[Math.floor(activeSamples.length * R.float())]
 
     currentActive.status = 'currentActive'
@@ -169,6 +175,9 @@ const newSample = async () => {
     } else {
 
         currentActive.status = 'done'
+
+        // no close sample found
+        // remove current sample from the activeSamples
         const index = activeSamples.indexOf(currentActive)
         activeSamples.splice(index, 1)
     }
@@ -213,6 +222,10 @@ document.querySelector('button#play').onclick = e => {
     e.target.innerHTML = engine.paused ? "Play" : "Pause"
 }
 document.querySelector('button#play').innerHTML = engine.paused ? "Play" : "Pause"
+
+
+
+
 
 Object.assign(window, {
     Dot,
