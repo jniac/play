@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <main class="center col">
+            <canvas width="2000" height="1000"></canvas>
+            <div class="controls col">
+                <div class="play-pause">play</div>
+                <div class="slider row" id="samples">
+                    <input type="range" step="any" value="5" min="0" max="20">
+                    <label>sample delay</label>
+                </div>
+                <div class="slider row" id="candidates">
+                    <input type="range" step="any" value="1" min="0" max="10">
+                    <label>candidates delay</label>
+                </div>
+            </div>
+        </main>
+        <script src="main.js" type="module"></script>
+    </body>
+</html>
