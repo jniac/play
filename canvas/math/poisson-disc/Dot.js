@@ -1,4 +1,5 @@
 import { CanvasElement } from './canvas-engine.js'
+import Point from './Point.js'
 
 export default class Dot extends CanvasElement {
 
@@ -20,11 +21,10 @@ export default class Dot extends CanvasElement {
 
         const {
             ctx,
-            x,
-            y,
             r,          // circle radius
             radius,     // poisson-disc radius
             status,
+            completion,
         } = this
 
         if (status === 'active') {
@@ -58,11 +58,12 @@ export default class Dot extends CanvasElement {
 
             if (/linked/.test(status)) {
 
-                const { other } = this
-                const dx = other.x - x
-                const dy = other.y - y
+                const { x, y, other } = this
+                let d = new Point(other.x - x, other.y - y)
+                d.norm += -12
+
                 ctx.moveTo(0, 0)
-                ctx.lineTo(dx, dy)
+                ctx.lineTo(d.x, d.y)
                 ctx.stroke()
             }
 
@@ -72,6 +73,15 @@ export default class Dot extends CanvasElement {
             ctx.beginPath()
             ctx.circle(0, 0, r)
             ctx.fill()
+        }
+
+        if (completion) {
+
+            ctx.strokeStyle = 'red'
+            ctx.lineWidth = 4
+            ctx.beginPath()
+            ctx.arc(0, 0, 16, 0, 2 * Math.PI * completion)
+            ctx.stroke()
         }
     }
 }

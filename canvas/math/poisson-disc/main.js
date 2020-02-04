@@ -70,11 +70,34 @@ const getCloseSample = ({ x, y }) => {
 
 
 // animation props
-let pauseOnStep = true
-let delaySamples = 20
-let delayCandidates = 5
+let samplePause = false
+let sampleDelay = 20
+let candidatePause = false
+let candidateDelay = 5
 
+const sampleAnimation = async (doPause = true) => {
 
+    if (sampleDelay > 0)
+        await wait(sampleDelay * 1 / 60)
+
+    if (samplePause && doPause) {
+        engine.paused = true
+        document.querySelector('button#play').innerHTML = "Play"
+        await wait(0)
+    }
+}
+
+const candidateAnimation = async () => {
+
+    if (candidateDelay > 0)
+        await wait(candidateDelay * 1 / 60)
+
+    if (candidatePause) {
+        engine.paused = true
+        document.querySelector('button#play').innerHTML = "Play"
+        await wait(0)
+    }
+}
 
 
 
@@ -82,7 +105,9 @@ let activeSamples = []
 
 const newSample = async () => {
 
-    await wait(delaySamples * 1 / 60)
+    await wait(0)
+
+    await sampleAnimation()
 
     if (activeSamples.length === 0)
         return
@@ -90,14 +115,16 @@ const newSample = async () => {
     let currentActive = activeSamples[Math.floor(activeSamples.length * R.float())]
 
     currentActive.status = 'currentActive'
-    await wait(delaySamples * 1 / 60)
+
+    await wait(0)
+
+    await sampleAnimation()
 
     let sample, candidates = new Set()
 
     for (let i of range(0, k)) {
 
-        if (i > 0 && delayCandidates > 0)
-            await wait(delayCandidates * 1 / 60)
+        await candidateAnimation()
 
         let { x, y } = randomPointInAnnulus(currentActive.x, currentActive.y, radius, radius * 2, () => R.float())
 
@@ -107,6 +134,7 @@ const newSample = async () => {
 
         let candidate = new Dot({ x, y, status:'candidate', radius })
         candidates.add(candidate)
+        currentActive.completion = (i + 1) / k
 
         let closeSample = getCloseSample({ x, y })
 
@@ -126,7 +154,8 @@ const newSample = async () => {
 
     }
 
-    await wait(delaySamples * 1 / 60)
+    await sampleAnimation()
+    currentActive.completion = 0
 
     for (let candidate of candidates)
         if (candidate !== sample)
@@ -170,12 +199,20 @@ const main = async () => {
 
 main()
 
-document.querySelector('#samples input').value = delaySamples
-document.querySelector('#samples input').oninput = e => delaySamples = parseFloat(e.target.value)
-document.querySelector('#candidates input').value = delayCandidates
-document.querySelector('#candidates input').oninput = e => delayCandidates = parseFloat(e.target.value)
+document.querySelector('#samples input[type=range]').value = sampleDelay
+document.querySelector('#samples input[type=range]').oninput = e => sampleDelay = parseFloat(e.target.value)
+document.querySelector('#samples input[type=checkbox]').checked = samplePause
+document.querySelector('#samples input[type=checkbox]').oninput = e => samplePause = e.target.checked
+document.querySelector('#candidates input[type=range]').value = candidateDelay
+document.querySelector('#candidates input[type=range]').oninput = e => candidateDelay = parseFloat(e.target.value)
+document.querySelector('#candidates input[type=checkbox]').checked = candidatePause
+document.querySelector('#candidates input[type=checkbox]').oninput = e => candidatePause = e.target.checked
 
-
+document.querySelector('button#play').onclick = e => {
+    engine.paused = !engine.paused
+    e.target.innerHTML = engine.paused ? "Play" : "Pause"
+}
+document.querySelector('button#play').innerHTML = engine.paused ? "Play" : "Pause"
 
 Object.assign(window, {
     Dot,

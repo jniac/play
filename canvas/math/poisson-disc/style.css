@@ -1,3 +1,7 @@
+body {
+    font-family: 'Roboto Mono', monospace;
+}
+
 main {
     height: 100vh;
 }
@@ -14,4 +18,32 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.controls {
+    margin-top: 32px;
+}
+.controls > * + *{
+    margin-top: 4px;
+}
+
+.controls .input {
+    font-size: 14px;
+}
+.controls .input > * {
+    flex: 0 0 auto;
+}
+.controls .input span {
+    flex: 0 0 100px;
+}
+.controls .input label {
+    opacity: .25;
+    padding: 0 4px;
+    margin-left: 12px;
+    white-space: nowrap;
+}
+
+.controls button {
+    margin-top: 16px;
+    padding: 4px;
 }

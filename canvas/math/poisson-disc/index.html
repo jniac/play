@@ -4,20 +4,27 @@
         <meta charset="utf-8">
         <title></title>
         <link rel="stylesheet" href="style.css">
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
     </head>
     <body>
         <main class="center col">
             <canvas width="2000" height="1000"></canvas>
             <div class="controls col">
-                <div class="play-pause">play</div>
-                <div class="slider row" id="samples">
+                <div class="input row" id="samples">
+                    <span>Samples</span>
+                    <label>delay</label>
                     <input type="range" step="any" value="5" min="0" max="20">
-                    <label>sample delay</label>
+                    <label>step-by-step</label>
+                    <input type="checkbox">
                 </div>
-                <div class="slider row" id="candidates">
+                <div class="input row" id="candidates">
+                    <span>Candidates</span>
+                    <label>delay</label>
                     <input type="range" step="any" value="1" min="0" max="10">
-                    <label>candidates delay</label>
+                    <label>step-by-step</label>
+                    <input type="checkbox">
                 </div>
+                <button id="play" type="button" name="button">Play</button>
             </div>
         </main>
         <script src="main.js" type="module"></script>
