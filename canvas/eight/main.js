@@ -18,9 +18,12 @@ import kit from '../lib/kit.module.js'
 
 async function main() {
 
-    const { gl, camera, renderer, scene, raycast, mouse, onUpdate } = setup({ size:3 })
+    const { gl, camera, renderer, scene, raycast, mouse, onUpdate } = setup({
+        size:3,
+        clearColor: new Color(.95, .95, .95),
+    })
 
-    camera.position.set(-4.06, -5.49, 8.76)
+    camera.position.set(-3.40, -4.84, 9.40)
 
     const orbit = new Orbit(camera)
     onUpdate.add(() => orbit.update())
@@ -37,7 +40,7 @@ async function main() {
 
 
 
-    let rMin = .5, rMax = 2
+    let rMin = .75, rMax = 2
     let n = 160
     const positions = []
     const normals = []
@@ -76,8 +79,8 @@ async function main() {
             // fragment: await utils.load('../materials/uv/fragment.glsl'),
             fragment: await utils.load('../materials/uv/gradient-u.glsl'),
             uniforms: {
-                uColor0: { value:new Color('#fc0') },
-                uColor1: { value:new Color('#0cf') },
+                uColor0: { value:new Color('#036') },
+                uColor1: { value:new Color('#369') },
             },
             cullFace: false,
         }),

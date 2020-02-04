@@ -4,7 +4,15 @@ import {
     Raycast,
     Transform,
     Vec2,
+    Vec3,
+    Color,
 } from './ogl/index.mjs'
+
+Object.assign(window, {
+    Vec2,
+    Vec3,
+    Color,
+})
 
 const requestFullscreen = (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen).bind(document.documentElement)
 const exitFullscreen = (document.exitFullscreen || document.webkitExitFullscreen).bind(document)
@@ -32,14 +40,19 @@ document.onfullscreenchange = () => document.body.classList.toggle('is-fullscree
 // weird bug with fullscreen
 document.documentElement.scrollTop = 0
 
-export default function setup({ size = 2, orthographic = false } = {}) {
+export default function setup({
+    size = 2,
+    orthographic = false,
+    clearColor = new Color(),
+    clearColorAlpha = 1,
+} = {}) {
 
     const onUpdate = new Set()
 
     const renderer = new Renderer({ dpr:2 })
     const gl = renderer.gl
     document.body.appendChild(gl.canvas)
-    gl.clearColor(0, 0, 0, 1)
+    gl.clearColor(...clearColor, clearColorAlpha)
 
     const camera = new Camera(gl)
     camera.position.set(0, 0, 7)
