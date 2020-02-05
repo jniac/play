@@ -93,8 +93,8 @@ async function main() {
             // fragment: await utils.load('../materials/uv/fragment.glsl'),
             fragment: await utils.load('../materials/uv/gradient-u.glsl'),
             uniforms: {
-                uColor0: { value:new Color('#f00') },
-                uColor1: { value:new Color('#369') },
+                uColor0: { value:new Color('#001020') },
+                uColor1: { value:new Color('#fff') },
                 offset: { value:0 },
             },
             cullFace: false,
@@ -102,7 +102,7 @@ async function main() {
     })
     lol.rotation.z = Math.PI * .25
     lol.setParent(scene)
-    lol.onBeforeRender(({ mesh }) => mesh.program.uniforms.offset.value += .1/60)
+    lol.onBeforeRender(({ mesh }) => mesh.program.uniforms.offset.value += -.1/60)
 
 }
 
