@@ -16,6 +16,8 @@ import utils from '../lib/utils.js'
 import setup from '../lib/ogl-setup.js'
 import kit from '../lib/kit.module.js'
 
+import strip from './strip.js'
+
 async function main() {
 
     const { gl, camera, renderer, scene, raycast, mouse, onUpdate } = setup({
@@ -23,7 +25,8 @@ async function main() {
         clearColor: new Color(.95, .95, .95),
     })
 
-    camera.position.set(-3.40, -4.84, 9.40)
+    // camera.position.set(-3.40, -4.84, 9.40)
+    camera.position.set(0, 0, 10)
 
     const orbit = new Orbit(camera)
     onUpdate.add(() => orbit.update())
@@ -65,12 +68,23 @@ async function main() {
         }
     }
 
-    const attributes = {
-        position: { size:3, data:new Float32Array(positions) },
-        normal: { size: 3, data: new Float32Array(normals) },
-        uv: { size: 2, data:new Float32Array(uvs) },
-        index: { data:(positions.length / 3 > 65536) ? new Uint32Array(indices) : new Uint16Array(indices) },
-    }
+    // const attributes = {
+    //     position: { size:3, data:new Float32Array(positions) },
+    //     normal: { size: 3, data: new Float32Array(normals) },
+    //     uv: { size: 2, data:new Float32Array(uvs) },
+    //     index: { data:(positions.length / 3 > 65536) ? new Uint32Array(indices) : new Uint16Array(indices) },
+    // }
+
+    const elevation = .1
+    strip.props.width = 2
+    strip.matrix.translate([-1.5, 1.5, 0])
+    strip.arc({ arc:1.5 * Math.PI, subdivision:90, start:0, elevation:elevation })
+    strip.lineTo(new Vec3(1.5, 0, elevation))
+    strip.matrix.identity()
+    strip.matrix.translate([1.5, -1.5, elevation])
+    strip.arc({ arc:-1.5 * Math.PI, subdivision:90, start:.5 * Math.PI, elevation:-elevation })
+    strip.lineTo(new Vec3(0, 1.5, 0), { flipSide:true })
+    const attributes = strip.dumpAttributes()
 
     const lol = new Mesh(gl, {
         geometry: new Geometry(gl, attributes),
@@ -79,13 +93,16 @@ async function main() {
             // fragment: await utils.load('../materials/uv/fragment.glsl'),
             fragment: await utils.load('../materials/uv/gradient-u.glsl'),
             uniforms: {
-                uColor0: { value:new Color('#036') },
+                uColor0: { value:new Color('#f00') },
                 uColor1: { value:new Color('#369') },
+                offset: { value:0 },
             },
             cullFace: false,
         }),
     })
+    lol.rotation.z = Math.PI * .25
     lol.setParent(scene)
+    lol.onBeforeRender(({ mesh }) => mesh.program.uniforms.offset.value += .1/60)
 
 }
 
