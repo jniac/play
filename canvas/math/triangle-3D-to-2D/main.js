@@ -1,90 +1,14 @@
-const ctx = document.querySelector('canvas').getContext('2d')
 
-function* enumerate(n) { let i = 0; while(i < n) yield i++; }
-
-ctx.translate(300, 500)
 ctx.scale(2, 2)
+ctx.translate(50, 0)
 
-const drawLine = (A, B, { color = 'black', lineWidth = 1 } = {}) => {
+ctx.translate(0, 250)
 
-    ctx.strokeStyle = color
-    ctx.lineWidth = lineWidth
-    ctx.beginPath()
-    ctx.moveTo(A.x, A.y)
-    ctx.lineTo(B.x, B.y)
-    ctx.stroke()
-}
+let A = new Point(0, 0)
+let B = new Point(340, 0)
+let C = new Point(300, -200)
 
-const drawVector = (origin, direction, { arrowSize = 8, ...options } = {}) => {
-
-    const destination = Point.add(origin, direction)
-    const v = direction.clone.normalize(arrowSize)
-    drawLine(origin, destination, options)
-    drawLine(destination, destination.clone.add(v.clone.rotate(135)), options)
-    drawLine(destination, destination.clone.add(v.clone.rotate(-135)), options)
-
-}
-
-const drawTriangle = (A, B, C) => {
-    drawLine(A, B)
-    drawLine(B, C)
-    drawLine(C, A)
-}
-
-const drawPoint = P => {
-    drawLine(P.clone.add({ x:10 }), P.clone.add({ x:-10 }))
-    drawLine(P.clone.add({ y:10 }), P.clone.add({ y:-10 }))
-}
-
-class Point extends Array {
-    constructor(x, y) {
-        super(x, y)
-    }
-    get x() { return this[0] }
-    get y() { return this[1] }
-    get clone() { return new Point(...this) }
-    add({ x = 0, y = 0}) {
-        this[0] += x
-        this[1] += y
-        return this
-    }
-    sub({ x = 0, y = 0}) {
-        this[0] -= x
-        this[1] -= y
-        return this
-    }
-    scale(scalar) {
-        this[0] *= scalar
-        this[1] *= scalar
-        return this
-    }
-    get len() {
-        const [x, y] = this
-        return Math.sqrt(x * x + y * y)
-    }
-    normalize(len = 1) {
-        return this.scale(len / this.len)
-    }
-    rotate(angle, { degree = true } = {}) {
-        if (degree)
-            angle *= Math.PI / 180
-        const cos = Math.cos(angle)
-        const sin = Math.sin(angle)
-        const [x, y] = this
-        this[0] = x * cos - y * sin
-        this[1] = x * sin + y * cos
-        return this
-    }
-    static add(A, B) { return A.clone.add(B) }
-    static sub(A, B) { return A.clone.sub(B) }
-    static scale(A, scalar) { return A.clone.scale(scalar) }
-}
-
-const A = new Point(0, 0)
-const B = new Point(340, 0)
-const C = new Point(300, -200)
-
-const M = new Point(220, -80)
+let M = new Point(220, -80)
 
 
 
@@ -106,3 +30,103 @@ drawVector(B.clone.scale(kb), C.clone.scale(kc), {
     color: 'red',
     lineWidth: 2,
 })
+
+
+
+C = new Point(100, -200)
+ctx.translate(500, 0)
+drawTriangle(A, B, C)
+
+let randomPoint1 = (width, C) => {
+    let r1 = Math.random()
+    let r2 = Math.random()
+    let color = r1 + r2 < 1 ? 'blue' : 'red'
+    let y = C.y * r1
+    let x = width * r2 + C.x * r1
+    let p = new Point(x, y)
+    p.color = color
+    return p
+}
+
+for (let i of enumerate(3000)) {
+    let p = randomPoint1(B.x, C)
+    ctx.fillStyle = p.color
+    drawDot(p)
+}
+
+
+ctx.translate(0, 250)
+drawTriangle(A, B, C)
+
+let randomPoint2 = (width, C) => {
+    let p = Math.random()
+    let q = Math.random()
+
+    let color = p + q < 1 ? 'blue' : 'red'
+
+    if (p + q > 1) {
+        p = (1 - p)
+        q = (1 - q)
+    }
+
+    let x = width * p + C.x * q
+    let y = C.y * q
+    let P = new Point(x, y)
+    P.color = color
+    return P
+}
+
+
+for (let i of enumerate(3000)) {
+    let p = randomPoint2(B.x, C)
+    ctx.fillStyle = p.color
+    drawDot(p)
+}
+
+
+
+
+
+ctx.translate(0, 250)
+drawTriangle(A, B, C)
+
+let randomPoint3 = (width, C) => {
+    let p = Math.random()
+    let q = Math.random() * (1 - p)
+
+    let x = width * p + C.x * q
+    let y = q * C.y
+
+    return new Point(x, y)
+}
+
+for (let i of enumerate(3000)) {
+    let p = randomPoint3(B.x, C)
+    ctx.fillStyle = 'black'
+    drawDot(p)
+}
+
+
+
+
+
+
+
+ctx.translate(-500, 0)
+drawTriangle(A, B, C)
+
+let randomPoint4 = (width, C) => {
+    let p = Math.sqrt(Math.random())
+    let q = Math.random();
+
+    let x = width * p * (1 - q) + C.x * p * q
+    let y = C.y * p * q
+
+    return new Point(x, y)
+}
+
+for (let i of enumerate(3000)) {
+    let p = randomPoint4(B.x, C)
+    ctx.fillStyle = 'black'
+    drawDot(p)
+}
