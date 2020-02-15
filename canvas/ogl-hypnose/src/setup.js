@@ -23,6 +23,8 @@ document.querySelector('.button.fullscreen').onclick = () => toggleFullScreen()
 
 document.onfullscreenchange = () => document.body.classList.toggle('is-fullscreen', document.fullscreenElement)
 
+document.body.classList.toggle('hidden-ui', window.location.search.includes('hidden-ui=1'))
+
 // weird bug with fullscreen
 document.documentElement.scrollTop = 0
 
