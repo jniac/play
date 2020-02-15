@@ -18,7 +18,7 @@ function toggleFullScreen() {
 }
 
 window.addEventListener('keydown', e => e.code === 'Space' && toggleFullScreen())
-document.querySelector('.button.refresh').onclick = () => window.location.href = '/#' + Math.floor(2147483647 * Math.random())
+document.querySelector('.button.refresh').onclick = () => window.location.href = '#' + Math.floor(2147483647 * Math.random())
 document.querySelector('.button.fullscreen').onclick = () => toggleFullScreen()
 
 document.onfullscreenchange = () => document.body.classList.toggle('is-fullscreen', document.fullscreenElement)
