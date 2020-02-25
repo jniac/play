@@ -6,53 +6,86 @@ paper.setup(canvas)
 function* enumerate(n) { let i = 0; while(i < n) yield i++ }
 function* range(from, to) { while(from < to) yield from++ }
 
-const { view, Path, Point, Color } = paper
+const { view, Group, Path, Point, Color } = paper
 
-const sinCircle = ({ radius, step = 1024 }) => {
+const root = new Group({
+    applyMatrix: false,
+    position: view.center,
+})
+
+window.addEventListener('resize', () => {
+
+    const { innerWidth:width, innerHeight:height } = window
+    canvas.width = width
+    canvas.height = height
+    canvas.style.width = `${width}px`
+    canvas.style.height = `${height}px`
+    view.setViewSize(width, height)
+    view.fire('resize')
+    
+    root.position = view.center
+})
+
+
+const sinCircle = ({ radius, step = 1024, period }) => {
 
     let path = new Path({
         strokeColor: 'black',
         strokeWidth: 1,
         // fillColor: '#96acd5',
-        position: view.center,
         applyMatrix: false,
         closed: true,
+        parent: root,
     })
 
     for (let i of enumerate(step)) {
         let angle = 2 * Math.PI * (i / step - .25)
-        let r = radius + 15 * Math.cos((i / step) * 2 * Math.PI * 12)
+        let r = radius + 15 * Math.cos((i / step) * 2 * Math.PI * period)
         let x = r * Math.cos(angle)
         let y = r * Math.sin(angle)
         path.add(new Point(x, y))
     }
 }
 
-// sinCircle({ radius:360 })
+sinCircle({ radius:370, period:24 })
 
-new Path.Circle({
-    center: view.center,
-    radius: 360,
-    strokeColor: 'black',
-    strokeWidth: 1,
-})
+// new Path.Circle({
+//     position: view.center,
+//     applyMatrix: false,
+//     radius: 450,
+//     fillColor: {
+//         gradient: {
+//             stops: [['#ff0068', 1], ['#ff006800', 0]],
+//             radial: true
+//         },
+//         origin: view.center,
+//         destination: view.center.add(450, 0),
+//     },
+// })
 
-new Path.Circle({
-    center: view.center,
-    radius: 320,
-    strokeColor: 'black',
-    strokeWidth: 1,
-    fillColor: 'white',
-    applyMatrix: false,
-})
+// new Path.Circle({
+//     center: view.center,
+//     radius: 360,
+//     strokeColor: 'black',
+//     strokeWidth: 1.5,
+// })
+
+// new Path.Circle({
+//     center: view.center,
+//     radius: 305,
+//     strokeColor: 'black',
+//     strokeWidth: 1.5,
+//     // fillColor: 'white',
+//     applyMatrix: false,
+// })
 
 const centralGear = ({ radius, fillColor, offset = 0, speed = 1, excentric = 20, ...props }) => {
 
     let gear = new Path.Circle({
-        center: view.center,
         radius,
         fillColor,
         applyMatrix: false,
+        parent: root,
         ...props
     })
 
@@ -62,7 +95,7 @@ const centralGear = ({ radius, fillColor, offset = 0, speed = 1, excentric = 20,
         angle = t * speed * .2
         let x = excentric * Math.cos(angle)
         let y = excentric * Math.sin(angle)
-        gear.position = view.center.add(x, y)
+        gear.position = [x, y]
     })
 }
 
@@ -98,7 +131,8 @@ const cross = ({ size = 10, strokeColor = 'black', strokeWidth = 2, ...props }) 
 centralGear({
     radius: 170,
     // fillColor: '#c696d5',
-    fillColor: '#7A66A4',
+    // fillColor: '#7A66A4',
+    fillColor: 'black',
     offset: 40,
     speed: .5,
     excentric: 10,
@@ -114,6 +148,11 @@ centralGear({
     excentric: 30,
 })
 
+centralGear({
+    radius: 150,
+    fillColor: 'goldenrod',
+})
+
 const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }) => {
 
     const cos01 = x => .5 - .5 * Math.cos(x * 2 * Math.PI)
@@ -121,7 +160,7 @@ const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }
     let group = new paper.Group({
         rotation:45,
         applyMatrix:false,
-        position: view.center,
+        parent: root,
     })
     group.on('frame', () => group.rotation += -.01)
 
@@ -131,17 +170,16 @@ const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }
         center: p0,
         radius: 48,
         // strokeColor: 'black',
-        // strokeWidth: 1,
-        fillColor: '#000',
+        fillColor: '#fff',
         parent: group,
     })
 
     let cr = cross({
         position: p0,
-        strokeColor: 'white',
+        strokeColor: 'black',
         parent: group,
         size: 44,
-        strokeWidth: 1,
+        strokeWidth: 1.5,
     })
     cr.on('frame', () => cr.rotation += .1)
 
@@ -168,21 +206,25 @@ const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }
 
         const addCircle = (offset = 0) => {
 
-            let circle = new Path.Circle({
+            let chip = new Path.Rectangle({
+            // let chip = new Path.Circle({
                 // center: p1,
-                radius: 3,
+                // radius: 3,
+                size: 4,
                 fillColor: 'black',
                 applyMatrix: false,
                 parent: group,
+                rotation: 180 / Math.PI * Math.atan2(v.y, v.x) + 45
             })
 
             let v21 = p1.subtract(p2)
-            let t = i / step * 1.5 + offset
-            circle.on('frame', () => {
+            let t = cos01(i / step) * .2
+            let s = cos01(i / step)
+            chip.on('frame', () => {
                 t += 1 / 60 * .05
                 t %= 1
-                circle.position = p2.add(v21.multiply(cos01(t)))
-                circle.scaling = .15 + 2 * cos01(t)
+                chip.position = p2.add(v21.multiply(cos01(t)))
+                chip.scaling = (1 + 2 * cos01(t)) * s
             })
         }
 
@@ -191,10 +233,14 @@ const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }
 
 }
 
-drawShell({ radius:300, strokeWidth:1.5 })
-
+drawShell({
+    radius:300,
+    strokeWidth:1.5,
+})
 
 centralGear({
-    radius: 150,
-    fillColor: 'goldenrod',
+    radius: 130,
+    strokeColor: 'black',
+    strokeWidth: 1.5,
+    fillColor: '#daa520',
 })
