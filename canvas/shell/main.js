@@ -66,6 +66,34 @@ const centralGear = ({ radius, fillColor, offset = 0, speed = 1, excentric = 20,
     })
 }
 
+const cross = ({ size = 10, strokeColor = 'black', strokeWidth = 2, ...props }) => {
+
+    let group = new paper.Group({
+        applyMatrix:false,
+        ...props
+    })
+
+    new Path.Line({
+        from: [-size, 0],
+        to: [size, 0],
+        strokeColor,
+        strokeWidth,
+        applyMatrix: false,
+        parent: group,
+    })
+
+    new Path.Line({
+        from: [0, -size],
+        to: [0, size],
+        strokeColor,
+        strokeWidth,
+        applyMatrix: false,
+        parent: group,
+    })
+
+    return group
+}
+
 
 centralGear({
     radius: 170,
@@ -95,15 +123,28 @@ const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }
         applyMatrix:false,
         position: view.center,
     })
+    group.on('frame', () => group.rotation += -.01)
 
     let p0 = new Point(0, -radius)
 
     new Path.Circle({
         center: p0,
-        radius: 7,
-        fillColor: '#00f',
+        radius: 48,
+        // strokeColor: 'black',
+        // strokeWidth: 1,
+        fillColor: '#000',
         parent: group,
     })
+
+    let cr = cross({
+        position: p0,
+        strokeColor: 'white',
+        parent: group,
+        size: 44,
+        strokeWidth: 1,
+    })
+    cr.on('frame', () => cr.rotation += .1)
+
 
     for (let i of range(2, step - 1)) {
         let angle = 2 * Math.PI * (i / step - .25)
