@@ -2,7 +2,7 @@ window.addEventListener('load', () => {
 
     const style = document.createElement('style')
     style.innerHTML = `
-        div.fullscreen {
+        body:not(.hidden-ui) div.fullscreen {
             position: absolute;
             width: 32px;
             height: 32px;
@@ -45,4 +45,7 @@ window.addEventListener('load', () => {
     document.onfullscreenchange = () => document.body.classList.toggle('is-fullscreen', document.fullscreenElement)
 
     // weird bug with fullscreen
-    document.documentElement.scrollTop = 0})
+    document.documentElement.scrollTop = 0
+
+    document.body.classList.toggle('hidden-ui', /hidden-ui=(true|1)/.test(window.location.search))
+})
