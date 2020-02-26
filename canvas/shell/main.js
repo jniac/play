@@ -6,6 +6,17 @@ paper.setup(canvas)
 function* enumerate(n) { let i = 0; while(i < n) yield i++ }
 function* range(from, to) { while(from < to) yield from++ }
 
+const sawtooth = (x, period = 2) => {
+
+    x /= period
+    x %= 1
+
+    if (x < 0)
+        x += 1
+
+    return x < .5 ? 2 * x : 2 * (1 - x)
+}
+
 const { view, Group, Path, Point, Color } = paper
 
 const root = new Group({
@@ -22,62 +33,31 @@ window.addEventListener('resize', () => {
     canvas.style.height = `${height}px`
     view.setViewSize(width, height)
     view.fire('resize')
-    
+
     root.position = view.center
 })
 
 
-const sinCircle = ({ radius, step = 1024, period }) => {
+const sinCircle = ({ radius, step = 1024, period = 12, amplitude = 10, ...props }) => {
 
     let path = new Path({
         strokeColor: 'black',
-        strokeWidth: 1,
+        strokeWidth: .5,
         // fillColor: '#96acd5',
         applyMatrix: false,
         closed: true,
         parent: root,
+        ...props
     })
 
     for (let i of enumerate(step)) {
         let angle = 2 * Math.PI * (i / step - .25)
-        let r = radius + 15 * Math.cos((i / step) * 2 * Math.PI * period)
+        let r = radius + amplitude * Math.cos((i / step) * 2 * Math.PI * period)
         let x = r * Math.cos(angle)
         let y = r * Math.sin(angle)
         path.add(new Point(x, y))
     }
 }
-
-sinCircle({ radius:370, period:24 })
-
-// new Path.Circle({
-//     position: view.center,
-//     applyMatrix: false,
-//     radius: 450,
-//     fillColor: {
-//         gradient: {
-//             stops: [['#ff0068', 1], ['#ff006800', 0]],
-//             radial: true
-//         },
-//         origin: view.center,
-//         destination: view.center.add(450, 0),
-//     },
-// })
-
-// new Path.Circle({
-//     center: view.center,
-//     radius: 360,
-//     strokeColor: 'black',
-//     strokeWidth: 1.5,
-// })
-
-// new Path.Circle({
-//     center: view.center,
-//     radius: 305,
-//     strokeColor: 'black',
-//     strokeWidth: 1.5,
-//     // fillColor: 'white',
-//     applyMatrix: false,
-// })
 
 const centralGear = ({ radius, fillColor, offset = 0, speed = 1, excentric = 20, ...props }) => {
 
@@ -99,34 +79,53 @@ const centralGear = ({ radius, fillColor, offset = 0, speed = 1, excentric = 20,
     })
 }
 
-const cross = ({ size = 10, strokeColor = 'black', strokeWidth = 2, ...props }) => {
+const cross = ({ radius = 10, innerRadius = 0, strokeColor = 'black', strokeWidth = 2, step = 2, ...props }) => {
 
     let group = new paper.Group({
         applyMatrix:false,
         ...props
     })
 
-    new Path.Line({
-        from: [-size, 0],
-        to: [size, 0],
-        strokeColor,
-        strokeWidth,
-        applyMatrix: false,
-        parent: group,
-    })
+    for (let i of enumerate(step)) {
 
-    new Path.Line({
-        from: [0, -size],
-        to: [0, size],
-        strokeColor,
-        strokeWidth,
-        applyMatrix: false,
-        parent: group,
-    })
+        const angle = 2 * Math.PI * i / step
+        const x1 = innerRadius * Math.cos(angle)
+        const y1 = innerRadius * Math.sin(angle)
+        const x2 = radius * Math.cos(angle)
+        const y2 = radius * Math.sin(angle)
+
+        new Path.Line({
+            from: [x1, y1],
+            to: [x2, y2],
+            strokeColor,
+            strokeWidth,
+            applyMatrix: false,
+            parent: group,
+        })
+    }
 
     return group
 }
 
+{
+    let period = 4
+    let amplitude = 30
+
+    for (let i of enumerate(3)) {
+        const rotation = 360 / 4 * i / 3
+        sinCircle({ radius:370, period, amplitude, rotation })
+
+        cross({
+            strokeColor: 'black',
+            parent: root,
+            innerRadius: 430,
+            radius: 4330,
+            strokeWidth: .5,
+            step: period,
+            rotation,
+        })
+    }
+}
 
 centralGear({
     radius: 170,
@@ -166,20 +165,24 @@ const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }
 
     let p0 = new Point(0, -radius)
 
-    new Path.Circle({
-        center: p0,
-        radius: 48,
-        // strokeColor: 'black',
-        fillColor: '#fff',
-        parent: group,
-    })
+    // new Path.Circle({
+    //     center: p0,
+    //     radius: 60,
+    //     strokeColor: 'black',
+    //     strokeWidth: .5,
+    //     fillColor: '#fff',
+    //     applyMatrix: false,
+    //     parent: group,
+    // })
 
     let cr = cross({
         position: p0,
         strokeColor: 'black',
         parent: group,
-        size: 44,
+        // innerRadius: 14,
+        radius: 34,
         strokeWidth: 1.5,
+        step: 3,
     })
     cr.on('frame', () => cr.rotation += .1)
 
@@ -218,13 +221,17 @@ const drawShell = ({ radius, strokeWidth, strokeColor = 'black', step = 32 * 2 }
             })
 
             let v21 = p1.subtract(p2)
-            let t = cos01(i / step) * .2
+            let t = 0
             let s = cos01(i / step)
             chip.on('frame', () => {
-                t += 1 / 60 * .05
-                t %= 1
-                chip.position = p2.add(v21.multiply(cos01(t)))
-                chip.scaling = (1 + 2 * cos01(t)) * s
+                t += 1 / 60
+                // let x = kit.Ease.inout(sawtooth(t * .10) % 1, 2 + 3 * s, .1)
+                let x = Math.cos((t + s * 4) * .4) * .5 + .5
+                x = 1 - x
+                x **= 1 + (1 - s) * 2
+                x = 1 - x
+                chip.position = p2.add(v21.multiply(x))
+                chip.scaling = (s * s + 2 * x) * s + x * (.5 + .5 * s)
             })
         }
 
