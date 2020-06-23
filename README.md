@@ -6,3 +6,5 @@ web - sometimes gl - experimentations
 
 - [/canvas/shell](https://jniac.github.io/play/canvas/shell/)  
   Sketch with [paperjs](http://paperjs.org/)
+
+- [Maths](https://github.com/jniac/play/tree/master/canvas/math)
